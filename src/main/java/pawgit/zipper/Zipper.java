@@ -1,7 +1,5 @@
 package pawgit.zipper;
 
-import jakarta.persistence.EntityManager;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.ZipEntry;
@@ -14,8 +12,9 @@ public class Zipper implements AutoCloseable {
         this.zipOut = new ZipOutputStream(zipOut);
     }
 
-    public void createEntry() throws IOException {
+    public Zipper createEntry() throws IOException {
         this.zipOut.putNextEntry(new ZipEntry("file.txt"));
+        return this;
     }
 
     public void writeAndFlush(byte[] bytes) throws IOException {

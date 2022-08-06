@@ -1,11 +1,12 @@
 package pawgit.zipper;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Query;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Base64;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Path("/download")
@@ -24,14 +25,13 @@ public class HelloResource {
     }
 
     @GET
-    @Produces("application/zip")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response download() {
         try {
             StreamingOutput streamingOutput = streamingOutput();
 
-            return Response.ok()
+            return Response.ok(streamingOutput)
                     .type(MediaType.APPLICATION_OCTET_STREAM)
-                    .entity(streamingOutput)
                     .header("Content-Disposition", "attachment; filename=companies.zip")
                     .build();
         } catch (Exception ex) {
@@ -42,9 +42,7 @@ public class HelloResource {
     private StreamingOutput streamingOutput() {
         return os -> {
             try (CompanyRepository companyRepository = new CompanyRepository();
-                 Zipper zipper = new Zipper(os)) {
-
-                zipper.createEntry();
+                 Zipper zipper = new Zipper(os).createEntry()) {
 
                 int offset = 0;
                 int limit = 20000;
