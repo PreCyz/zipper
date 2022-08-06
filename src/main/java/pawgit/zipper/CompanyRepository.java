@@ -2,6 +2,8 @@ package pawgit.zipper;
 
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -11,6 +13,7 @@ import static java.util.stream.Collectors.toList;
 
 public class CompanyRepository implements AutoCloseable {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyRepository.class);
     private static final int BATCH_SIZE = 1000;
 
     private final EntityManager entityManager;
@@ -44,6 +47,7 @@ public class CompanyRepository implements AutoCloseable {
                 if (counter > 0 && counter % BATCH_SIZE == 0) {
                     entityManager.flush();
                     entityManager.clear();
+                    LOGGER.debug("Entity manager flushed and cleared.");
                 }
                 counter++;
                 entityManager.persist(c);

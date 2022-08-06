@@ -3,6 +3,8 @@ package pawgit.zipper;
 import jakarta.persistence.Query;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -11,6 +13,8 @@ import java.util.stream.Collectors;
 
 @Path("/download")
 public class HelloResource {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HelloResource.class);
 
     @POST
     @Path(value = "/generate/{limit}")
@@ -51,7 +55,7 @@ public class HelloResource {
                 List<Company> resultList = query.getResultList();
 
                 do {
-                    System.out.printf("Processing offset: %d%n", offset);
+                    LOGGER.debug("Processing offset: {}", offset);
                     String output = resultList.stream()
                             .map(Company::toString)
                             .collect(Collectors.joining());
@@ -59,7 +63,7 @@ public class HelloResource {
                     output += "\n";
                     byte[] encode = Base64.getEncoder().encode(output.getBytes(StandardCharsets.UTF_8));
                     zipper.writeAndFlush(encode);
-                    System.out.printf("After write Entity manager is opened: %b%n", CompanyRepository.isEntityManagerOpen());
+                    LOGGER.debug("After write Entity manager is opened: {}", CompanyRepository.isEntityManagerOpen());
 
                     offset += limit;
                     query = companyRepository.getCompanySortedByStartDate(offset, limit);
@@ -68,7 +72,7 @@ public class HelloResource {
                 } while (!resultList.isEmpty());
 
             } catch (Exception ex) {
-                System.err.println(ex.getMessage());
+                LOGGER.error("Error when streaming", ex);
             }
         };
     }
