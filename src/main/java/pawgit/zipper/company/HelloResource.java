@@ -1,10 +1,12 @@
-package pawgit.zipper;
+package pawgit.zipper.company;
 
 import jakarta.persistence.Query;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pawgit.zipper.HelloApplication;
+import pawgit.zipper.services.Zipper;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -20,7 +22,7 @@ public class HelloResource {
     @Path(value = "/generate/{limit}")
     @Produces(MediaType.TEXT_PLAIN)
     public Response generate(@PathParam("limit") int limit) {
-        try (CompanyRepository companyRepository = new CompanyRepository()) {
+        try (CompanyRepository companyRepository = HelloApplication.COMPANY_REPOSITORY) {
             companyRepository.generate(limit);
         } catch (Exception ex) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
@@ -45,7 +47,7 @@ public class HelloResource {
 
     private StreamingOutput streamingOutput() {
         return os -> {
-            try (CompanyRepository companyRepository = new CompanyRepository();
+            try (CompanyRepository companyRepository = HelloApplication.COMPANY_REPOSITORY;
                  Zipper zipper = new Zipper(os).createEntry()) {
 
                 int offset = 0;
@@ -63,7 +65,7 @@ public class HelloResource {
                     output += "\n";
                     byte[] encode = Base64.getEncoder().encode(output.getBytes(StandardCharsets.UTF_8));
                     zipper.writeAndFlush(encode);
-                    LOGGER.debug("After write Entity manager is opened: {}", CompanyRepository.isEntityManagerOpen());
+                    LOGGER.debug("After write Entity manager is opened: {}", companyRepository.isEntityManagerOpen());
 
                     offset += limit;
                     query = companyRepository.getCompanySortedByStartDate(offset, limit);

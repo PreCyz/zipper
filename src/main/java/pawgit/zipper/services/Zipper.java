@@ -1,4 +1,4 @@
-package pawgit.zipper;
+package pawgit.zipper.services;
 
 import java.io.IOException;
 import java.io.OutputStream;

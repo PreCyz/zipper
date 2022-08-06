@@ -1,4 +1,4 @@
-package pawgit.zipper;
+package pawgit.zipper.utils.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;

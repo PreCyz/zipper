@@ -1,9 +1,11 @@
-package pawgit.zipper;
+package pawgit.zipper.company;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
+import pawgit.zipper.utils.json.JsonDateDeserializer;
+import pawgit.zipper.utils.json.JsonDateSerializer;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

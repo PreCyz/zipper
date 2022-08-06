@@ -1,6 +1,7 @@
-package pawgit.zipper;
+package pawgit.zipper.company;
 
-import jakarta.persistence.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import jakarta.persistence.criteria.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,18 +17,19 @@ public class CompanyRepository implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyRepository.class);
     private static final int BATCH_SIZE = 1000;
 
-    private final EntityManager entityManager;
-    private static final EntityManagerFactory emFactory;
-    static {
-        emFactory = Persistence.createEntityManagerFactory("zipper", Collections.emptyMap());
+    private static class InstanceHolder {
+        private static final CompanyRepository INSTANCE = new CompanyRepository();
     }
 
-    private static EntityManager getEntityManager() {
-        return emFactory.createEntityManager();
-    }
+    private EntityManager entityManager;
 
-    public CompanyRepository() {
-        this.entityManager = getEntityManager();
+    private CompanyRepository() {}
+
+    public static CompanyRepository getInstance(EntityManager entityManager) {
+        if (InstanceHolder.INSTANCE.entityManager == null) {
+            InstanceHolder.INSTANCE.entityManager = entityManager;
+        }
+        return InstanceHolder.INSTANCE;
     }
 
     public void generate(int limit) {
@@ -47,7 +49,7 @@ public class CompanyRepository implements AutoCloseable {
                 if (counter > 0 && counter % BATCH_SIZE == 0) {
                     entityManager.flush();
                     entityManager.clear();
-                    LOGGER.debug("Entity manager flushed and cleared.");
+                    LOGGER.debug("EntityManager flushed and cleared.");
                 }
                 counter++;
                 entityManager.persist(c);
@@ -81,7 +83,7 @@ public class CompanyRepository implements AutoCloseable {
         entityManager.clear();
     }
 
-    public static boolean isEntityManagerOpen() {
-        return getEntityManager() != null && getEntityManager().isOpen();
+    public boolean isEntityManagerOpen() {
+        return entityManager != null && entityManager.isOpen();
     }
 }

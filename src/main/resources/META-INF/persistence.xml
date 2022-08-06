@@ -7,7 +7,7 @@
     <persistence-unit name="zipper">
         <description>JPA Test</description>
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-        <class>pawgit.zipper.Company</class>
+        <class>pawgit.zipper.company.Company</class>
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
             <property name="hibernate.hbm2ddl.auto" value="update"/>
