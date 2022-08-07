@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pawgit.zipper.HelloApplication;
 
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,8 +36,7 @@ public class DownloadGzipController {
     private StreamingOutput streamingOutput() {
         return outputStream -> {
             try (CompanyRepository companyRepository = HelloApplication.COMPANY_REPOSITORY;
-                 OutputStream b64os = new Base64OutputStream(outputStream);
-                 GZIPOutputStream gzip = new GZIPOutputStream(outputStream)) {
+                 GZIPOutputStream gzip = new GZIPOutputStream(new Base64OutputStream(outputStream))) {
 
                 LOGGER.info("GZIPOutputStream is used in the streaming.");
 
@@ -66,9 +64,6 @@ public class DownloadGzipController {
 
             } catch (Exception ex) {
                 LOGGER.error("Error when streaming", ex);
-            } finally {
-                outputStream.flush();
-                outputStream.close();
             }
         };
     }

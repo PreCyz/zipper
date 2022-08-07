@@ -19,7 +19,7 @@ public class Zipper implements AutoCloseable {
         this.entryFileName = zipFileName;
     }
 
-    public Zipper createEntry() throws IOException {
+    public Zipper withEntry() throws IOException {
         this.zipOutputStream.putNextEntry(new ZipEntry(entryFileName));
         return this;
     }

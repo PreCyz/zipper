@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import pawgit.zipper.HelloApplication;
 import pawgit.zipper.services.Zipper;
 
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,8 +50,10 @@ public class DownloadResource {
     private StreamingOutput streamingOutput(final boolean useBase64OutputStream) {
         return outputStream -> {
             try (CompanyRepository companyRepository = HelloApplication.COMPANY_REPOSITORY;
-                 OutputStream os = useBase64OutputStream ? new Base64OutputStream(outputStream) : outputStream;
-                 Zipper zipper = new Zipper(os).createEntry()) {
+                 Zipper zipper = new Zipper(
+                         useBase64OutputStream ? new Base64OutputStream(outputStream) : outputStream
+                 ).withEntry())
+            {
 
                 LOGGER.info("Based64OutputStream is used in the streaming [{}].", useBase64OutputStream);
 
@@ -71,8 +72,8 @@ public class DownloadResource {
                     output += "\n";
                     if (!useBase64OutputStream) {
                         output = DatatypeConverter.printBase64Binary(output.getBytes(StandardCharsets.UTF_8));
-
                     }
+
                     zipper.writeAndFlush(output.getBytes(StandardCharsets.UTF_8));
                     LOGGER.info("After write Entity manager is opened: {}", companyRepository.isEntityManagerOpen());
 
@@ -84,9 +85,6 @@ public class DownloadResource {
 
             } catch (Exception ex) {
                 LOGGER.error("Error when streaming", ex);
-            } finally {
-                outputStream.flush();
-                outputStream.close();
             }
         };
     }
