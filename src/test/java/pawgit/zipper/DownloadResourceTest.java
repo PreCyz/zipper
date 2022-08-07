@@ -2,13 +2,14 @@ package pawgit.zipper;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Base64;
+import java.util.Scanner;
 
-class HelloResourceTest {
+class DownloadResourceTest {
 
     @Test
     void name() throws IOException {

@@ -11,7 +11,8 @@
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
             <property name="hibernate.hbm2ddl.auto" value="update"/>
-            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.show_sql" value="false"/>
+            <property name="hibernate.format_sql" value="true"/>
 
             <property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/pw2021?useSSL=false&amp;serverTimezone=UTC&amp;useLegacyDatetimeCode=false&amp;allowPublicKeyRetrieval=true"/>
             <property name="hibernate.connection.driver_class" value="com.mysql.cj.jdbc.Driver"/>

@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pawgit.zipper.company.CompanyRepository;
 
@@ -16,12 +17,11 @@ public class HelloApplication extends Application {
     public static CompanyRepository COMPANY_REPOSITORY;
 
     static {
+        Logger logger = LoggerFactory.getLogger(HelloApplication.class);
         emFactory = Persistence.createEntityManagerFactory("zipper", Collections.emptyMap());
-        LoggerFactory.getLogger(HelloApplication.class).debug("{} initialized", emFactory.getClass().getSimpleName());
-        System.out.printf("%s initialized%n", emFactory.getClass().getSimpleName());
+        logger.info("{} initialized", emFactory.getClass().getSimpleName());
         COMPANY_REPOSITORY = CompanyRepository.getInstance(emFactory.createEntityManager());
-        LoggerFactory.getLogger(HelloApplication.class).debug("{} initialized", COMPANY_REPOSITORY.getClass().getSimpleName());
-        System.out.printf("%s initialized%n", COMPANY_REPOSITORY.getClass().getSimpleName());
+        logger.info("{} initialized", COMPANY_REPOSITORY.getClass().getSimpleName());
     }
 
 }

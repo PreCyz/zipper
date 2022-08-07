@@ -7,31 +7,31 @@ import java.util.zip.ZipOutputStream;
 
 public class Zipper implements AutoCloseable {
     private static final String FILE_NAME = "file.txt";
-    private final ZipOutputStream zipOut;
+    private final ZipOutputStream zipOutputStream;
     private final String entryFileName;
 
-    public Zipper(OutputStream zipOut) {
-        this(zipOut, FILE_NAME);
+    public Zipper(OutputStream outputStream) {
+        this(outputStream, FILE_NAME);
     }
 
-    protected Zipper(OutputStream zipOut, String zipFileName) {
-        this.zipOut = new ZipOutputStream(zipOut);
+    protected Zipper(OutputStream outputStream, String zipFileName) {
+        this.zipOutputStream = new ZipOutputStream(outputStream);
         this.entryFileName = zipFileName;
     }
 
     public Zipper createEntry() throws IOException {
-        this.zipOut.putNextEntry(new ZipEntry(entryFileName));
+        this.zipOutputStream.putNextEntry(new ZipEntry(entryFileName));
         return this;
     }
 
     public void writeAndFlush(byte[] bytes) throws IOException {
-        zipOut.write(bytes);
-        zipOut.flush();
+        zipOutputStream.write(bytes);
+        zipOutputStream.flush();
     }
 
     @Override
     public void close() throws IOException {
-        zipOut.closeEntry();
-        zipOut.close();
+        zipOutputStream.closeEntry();
+        zipOutputStream.close();
     }
 }

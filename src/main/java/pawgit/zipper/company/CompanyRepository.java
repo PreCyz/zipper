@@ -49,7 +49,7 @@ public class CompanyRepository implements AutoCloseable {
                 if (counter > 0 && counter % BATCH_SIZE == 0) {
                     entityManager.flush();
                     entityManager.clear();
-                    LOGGER.debug("EntityManager flushed and cleared.");
+                    LOGGER.info("EntityManager flushed and cleared.");
                 }
                 counter++;
                 entityManager.persist(c);
