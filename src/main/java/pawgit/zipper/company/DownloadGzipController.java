@@ -3,41 +3,27 @@ package pawgit.zipper.company;
 import jakarta.persistence.Query;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
-import jakarta.xml.bind.DatatypeConverter;
 import org.apache.commons.codec.binary.Base64OutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pawgit.zipper.HelloApplication;
-import pawgit.zipper.services.Zipper;
 
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPOutputStream;
 
-@Path("/download")
-public class DownloadResource {
+@Path("/gzip")
+public class DownloadGzipController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DownloadResource.class);
-
-    @POST
-    @Path(value = "/generate/{limit}")
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response generate(@PathParam("limit") int limit) {
-        try (CompanyRepository companyRepository = HelloApplication.COMPANY_REPOSITORY) {
-            companyRepository.generate(limit);
-        } catch (Exception ex) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
-        }
-        return Response.ok().entity("GENERATED").build();
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(DownloadGzipController.class);
 
     @GET
-    @Path("/{based64OS}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public Response download(@PathParam("based64OS") String based64OS) {
+    public Response download() {
         try {
-            StreamingOutput streamingOutput = streamingOutput(Boolean.parseBoolean(based64OS));
+            StreamingOutput streamingOutput = streamingOutput();
 
             return Response.ok(streamingOutput)
                     .type(MediaType.APPLICATION_OCTET_STREAM)
@@ -48,13 +34,13 @@ public class DownloadResource {
         }
     }
 
-    private StreamingOutput streamingOutput(final boolean useBase64OutputStream) {
+    private StreamingOutput streamingOutput() {
         return outputStream -> {
             try (CompanyRepository companyRepository = HelloApplication.COMPANY_REPOSITORY;
-                 OutputStream os = useBase64OutputStream ? new Base64OutputStream(outputStream) : outputStream;
-                 Zipper zipper = new Zipper(os).createEntry()) {
+                 OutputStream b64os = new Base64OutputStream(outputStream);
+                 GZIPOutputStream gzip = new GZIPOutputStream(outputStream)) {
 
-                LOGGER.info("Based64OutputStream is used in the streaming [{}].", useBase64OutputStream);
+                LOGGER.info("GZIPOutputStream is used in the streaming.");
 
                 int offset = 0;
                 int limit = 20000;
@@ -68,12 +54,8 @@ public class DownloadResource {
                             .map(Company::toString)
                             .collect(Collectors.joining());
 
-                    output += "\n";
-                    if (!useBase64OutputStream) {
-                        output = DatatypeConverter.printBase64Binary(output.getBytes(StandardCharsets.UTF_8));
-
-                    }
-                    zipper.writeAndFlush(output.getBytes(StandardCharsets.UTF_8));
+                    gzip.write(output.getBytes(StandardCharsets.UTF_8));
+                    gzip.flush();
                     LOGGER.info("After write Entity manager is opened: {}", companyRepository.isEntityManagerOpen());
 
                     offset += limit;
