@@ -3,8 +3,6 @@ package pawgit.zipper.company;
 import jakarta.persistence.Query;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
-import jakarta.xml.bind.DatatypeConverter;
-import org.apache.commons.codec.binary.Base64OutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pawgit.zipper.HelloApplication;
@@ -32,11 +30,10 @@ public class DownloadResource {
     }
 
     @GET
-    @Path("/{based64OS}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public Response download(@PathParam("based64OS") String based64OS) {
+    public Response download() {
         try {
-            StreamingOutput streamingOutput = streamingOutput(Boolean.parseBoolean(based64OS));
+            StreamingOutput streamingOutput = streamingOutput();
 
             return Response.ok(streamingOutput)
                     .type(MediaType.APPLICATION_OCTET_STREAM)
@@ -47,16 +44,11 @@ public class DownloadResource {
         }
     }
 
-    private StreamingOutput streamingOutput(final boolean useBase64OutputStream) {
+    private StreamingOutput streamingOutput() {
         return outputStream -> {
             try (CompanyRepository companyRepository = HelloApplication.COMPANY_REPOSITORY;
-                 Zipper zipper = new Zipper(
-                         useBase64OutputStream ? new Base64OutputStream(outputStream) : outputStream
-                 ).withEntry())
+                 Zipper zipper = new Zipper(outputStream).withEntry())
             {
-
-                LOGGER.info("Based64OutputStream is used in the streaming [{}].", useBase64OutputStream);
-
                 int offset = 0;
                 int limit = 20000;
 
@@ -64,15 +56,13 @@ public class DownloadResource {
                 List<Company> resultList = query.getResultList();
 
                 do {
+                    companyRepository.clearSession();
                     LOGGER.info("Processing offset: {}", offset);
                     String output = resultList.stream()
                             .map(Company::toString)
                             .collect(Collectors.joining());
 
                     output += "\n";
-                    if (!useBase64OutputStream) {
-                        output = DatatypeConverter.printBase64Binary(output.getBytes(StandardCharsets.UTF_8));
-                    }
 
                     zipper.writeAndFlush(output.getBytes(StandardCharsets.UTF_8));
                     LOGGER.info("After write Entity manager is opened: {}", companyRepository.isEntityManagerOpen());

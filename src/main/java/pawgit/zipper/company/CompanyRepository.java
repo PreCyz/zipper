@@ -86,4 +86,10 @@ public class CompanyRepository implements AutoCloseable {
     public boolean isEntityManagerOpen() {
         return entityManager != null && entityManager.isOpen();
     }
+
+    public void clearSession() {
+        if (entityManager != null) {
+            entityManager.clear();
+        }
+    }
 }
